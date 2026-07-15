@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+venv/
+.venv/
+
+# DVC cache (too large for github)
+.dvc/cache/
+.dvc/tmp/
+
+# Data files (tracked by DVC not git)
+data/train.csv
+data/test.csv
+
+# Model files (tracked by DVC not git)
+models/model.pkl
+models/run_id.txt
+
+# MLflow
+mlruns/
+
+# Metrics (optional - you can keep this)
+metrics/
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
+Thumbs.db

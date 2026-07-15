@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  # MLflow Tracking Server
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.11.1
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_data:/mlflow
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ML App (runs DVC pipeline)
+  app:
+    build: .
+    volumes:
+      - .:/app
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    command: >
+      sh -c "
+        git init &&
+        dvc init --no-scm &&
+        dvc repro &&
+        echo '🎉 Pipeline complete! Check MLflow at http://localhost:5000'
+      "
+
+volumes:
+  mlflow_data:
